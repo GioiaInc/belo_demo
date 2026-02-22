@@ -1,0 +1,16 @@
+Saeed Sharifi
+5:56 PM
+- Open the app and show the chat list. This is the first impression so they see a clean layout, polished UI. We should let the design speak for itself.
+- Tap into a chat and send a few messages back and forth. The key moment here: as the conversation progresses, the background shifts based on the tone/emotion of the exchange.
+- Show how the AI is working under the hood to detect paralinguistic signals (tone, emotion, intent) and how that powers the background changes.(if possible)
+- We need to show the overall smoothness so transitions, animations, load times everything should feel fluid.
+
+I was trying to think what could be possible or not. I spent a couple of hours with Enis today to get that design to an "okay" stage
+
+its not something I am super super pleased with yet but I needed to get something for you
+
+What else do you think we can do with the demo? Whats possible to showcase now?
+
+I kept it simple because I just want to highlight design, detection of mood, and smoothness
+
+thats it. Just to show how intuitive it is

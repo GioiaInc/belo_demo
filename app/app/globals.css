@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Bumbbled';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/bumbbled-regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Bumbbled';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/bumbbled-light.woff') format('woff');
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-bumbbled: 'Bumbbled', cursive;
+}
+
+@layer base {
+  html {
+    overflow: hidden;
+    background: #1F1F1F;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1F1F1F 0%, #4F2C5A 46%, #3C1749 100%);
+  }
+
+  /* Hide scrollbars */
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  button, a, input {
+    transition: all 0.2s ease;
+  }
+
+  input {
+    outline: none;
+    border: none;
+    background: transparent;
+    color: white;
+  }
+
+  input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
