@@ -6,12 +6,18 @@ export interface Contact {
   lastMessage: string;
 }
 
+export interface Insight {
+  mood: string;       // e.g. "withdrawn", "warm", "distressed"
+  signals: string[];  // e.g. ["short response", "deflection", "negative tone"]
+}
+
 export interface Message {
   id: string;
   text: string;
   sender: "user" | "contact";
   timestamp: string;
   mood: number; // 0 = tense/cold, 0.5 = neutral, 1 = warm/positive
+  insight?: Insight;
 }
 
 // Outer ring: clockwise from top — Person 2, 3, 6, 5, 4, 1
@@ -76,6 +82,12 @@ export const userAvatar = {
 // DEMO CHAT FLOW — wider emotional arc
 // =============================================
 
+// Baseline insight — explains the warm opening mood from yesterday's messages
+export const baselineInsight: Insight = {
+  mood: "warm",
+  signals: ["playful tone", "shared excitement", "positive recall"],
+};
+
 // Yesterday messages — warm, friends vibing
 export const chatHistory: Message[] = [
   {
@@ -125,6 +137,10 @@ export const demoScript: Message[] = [
     sender: "user",
     timestamp: "5:53 PM",
     mood: 0.5,
+    insight: {
+      mood: "withdrawn",
+      signals: ["one-word reply", "non-committal tone"],
+    },
   },
   {
     id: "d3",
@@ -139,6 +155,10 @@ export const demoScript: Message[] = [
     sender: "user",
     timestamp: "5:56 PM",
     mood: 0.28,
+    insight: {
+      mood: "low",
+      signals: ["emotional disclosure", "negative sentiment", "vague language"],
+    },
   },
   {
     id: "d5",
@@ -153,6 +173,10 @@ export const demoScript: Message[] = [
     sender: "user",
     timestamp: "5:59 PM",
     mood: 0.12,
+    insight: {
+      mood: "distressed",
+      signals: ["dismissive language", "emotional shutdown", "deflection"],
+    },
   },
   {
     id: "d7",
@@ -160,6 +184,10 @@ export const demoScript: Message[] = [
     sender: "contact",
     timestamp: "6:00 PM",
     mood: 0.65,
+    insight: {
+      mood: "supportive",
+      signals: ["empathetic language", "commitment", "reassurance"],
+    },
   },
 ];
 

@@ -110,6 +110,7 @@ export default function Home() {
   return (
     <motion.div
       className="relative w-full h-dvh overflow-hidden"
+      style={{ background: "linear-gradient(180deg, #1F1F1F 0%, #4F2C5A 46%, #3C1749 100%)" }}
       animate={exiting ? { opacity: 0, scale: 0.96, y: -20 } : { opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >

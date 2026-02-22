@@ -33,8 +33,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${cormorant.variable} font-sans antialiased`}>
-        {children}
+      <body className={`${inter.variable} ${cormorant.variable} font-sans antialiased`} style={{ background: "#000", margin: 0 }}>
+        {/* OBS rounded-corner masking wrapper — remove if not needed */}
+        <div style={{ borderRadius: 40, overflow: "hidden", height: "100dvh" }}>
+          {children}
+        </div>
       </body>
     </html>
   );

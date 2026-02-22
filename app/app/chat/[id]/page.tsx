@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import AtmosphericBG from "@/components/AtmosphericBG";
 import ChatBubble from "@/components/ChatBubble";
 import ChatInput from "@/components/ChatInput";
-import { outerRingContacts, chatHistory, demoScript } from "@/lib/mockData";
-import type { Message } from "@/lib/mockData";
+import MoodInsight from "@/components/MoodInsight";
+import { outerRingContacts, chatHistory, demoScript, baselineInsight } from "@/lib/mockData";
+import type { Message, Insight } from "@/lib/mockData";
 
 // =============================================
 // CHAT HEADER SIZES
@@ -20,8 +21,12 @@ const GLASS_ICON_SIZE = 36;     // px — liquid glass icon bubbles
 export default function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const contact = outerRingContacts.find((c) => c.id === id) || outerRingContacts[0];
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Insights mode — toggled via ?insights=true
+  const insightsMode = searchParams.get("insights") === "true";
 
   // State
   const [messages, setMessages] = useState<Message[]>(chatHistory);
@@ -29,6 +34,8 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   const [scriptIndex, setScriptIndex] = useState(0);   // where we are in demoScript
   const [isTyping, setIsTyping] = useState(false);
   const [started, setStarted] = useState(false);       // has the demo started
+  const [activeInsight, setActiveInsight] = useState<Insight | null>(null);
+  const insightCallbackRef = useRef<(() => void) | null>(null);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -51,10 +58,28 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
     return thinkingTime + text.length * perChar + Math.random() * 400;
   };
 
-  // Start the demo: after a short delay, Saeed sends the first message
+  // Show an insight overlay — waits for user to press Continue, then calls onDone
+  const showInsightThen = useCallback(
+    (insight: Insight, onDone: () => void) => {
+      setActiveInsight(insight);
+      insightCallbackRef.current = onDone;
+    },
+    []
+  );
+
+  const handleInsightContinue = useCallback(() => {
+    setActiveInsight(null);
+    const cb = insightCallbackRef.current;
+    insightCallbackRef.current = null;
+    cb?.();
+  }, []);
+
+  // Show baseline insight on load (insights mode only), then start demo
+  // In clean mode, just start the demo directly after a delay
   useEffect(() => {
     if (started) return;
-    const timer = setTimeout(() => {
+
+    const startDemo = () => {
       setStarted(true);
       setIsTyping(true);
       setTimeout(() => {
@@ -62,9 +87,20 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
         setMessages((prev) => [...prev, demoScript[0]]);
         setScriptIndex(1);
       }, getTypingDelay(demoScript[0].text));
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [started]);
+    };
+
+    if (insightsMode) {
+      // Wait 3s for the chat to settle, then show the baseline insight
+      const timer = setTimeout(() => {
+        setActiveInsight(baselineInsight);
+        insightCallbackRef.current = startDemo;
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(startDemo, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [started, insightsMode]);
 
   const handleSend = useCallback(
     (text: string) => {
@@ -80,19 +116,37 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
         const nextIdx = scriptIndex + 1;
         setScriptIndex(nextIdx);
 
-        // If the following message is from the contact, auto-send after typing indicator
-        if (nextIdx < demoScript.length && demoScript[nextIdx].sender === "contact") {
-          const reply = demoScript[nextIdx];
-          setIsTyping(true);
+        // After user message: show insight (if any), then proceed to contact reply
+        const proceedToReply = () => {
+          if (nextIdx < demoScript.length && demoScript[nextIdx].sender === "contact") {
+            const reply = demoScript[nextIdx];
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              setMessages((prev) => [...prev, reply]);
+              setScriptIndex(nextIdx + 1);
+
+              // Show insight for the contact reply too (e.g. d7)
+              if (insightsMode && reply.insight) {
+                setTimeout(() => {
+                  showInsightThen(reply.insight!, () => {});
+                }, 4000);
+              }
+            }, getTypingDelay(reply.text));
+          }
+        };
+
+        if (insightsMode && userMsg.insight) {
+          // Wait 4s after user message before showing the insight
           setTimeout(() => {
-            setIsTyping(false);
-            setMessages((prev) => [...prev, reply]);
-            setScriptIndex(nextIdx + 1);
-          }, getTypingDelay(reply.text));
+            showInsightThen(userMsg.insight!, proceedToReply);
+          }, 4000);
+        } else {
+          proceedToReply();
         }
       }
     },
-    [scriptIndex]
+    [scriptIndex, insightsMode, showInsightThen]
   );
 
   return (
@@ -106,7 +160,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
 
       <div className="relative z-10 h-full flex flex-col">
         {/* Status bar spacer */}
-        <div style={{ height: 28 }} />
+        <div style={{ height: 38 }} />
 
         {/* Chat header */}
         <motion.div
@@ -293,6 +347,16 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
 
         {/* Input */}
         <ChatInput onSend={handleSend} />
+
+        {/* AI Insight overlay */}
+        <AnimatePresence>
+          {activeInsight && (
+            <MoodInsight
+              insight={activeInsight}
+              onContinue={handleInsightContinue}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );

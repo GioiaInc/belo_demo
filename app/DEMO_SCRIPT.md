@@ -47,6 +47,32 @@ After ~1.5 seconds, the **"Today" divider** appears and Saeed starts typing.
 
 ---
 
+## AI Insight Mode (Technical Demo)
+
+There are two demo modes:
+
+- **Clean mode** (default): Just the chat with ambient mood shifting. Use this for the consumer-facing demo.
+- **Technical mode**: After each message, a frosted glass overlay appears showing the AI's detected mood and paralinguistic signals (tone, emotion, intent). Use this to show investors/partners how the AI works under the hood.
+
+### How to toggle
+
+Add `?insights=true` to the chat URL:
+
+| Mode | URL |
+|------|-----|
+| Clean | `/chat/person2` |
+| Technical | `/chat/person2?insights=true` |
+
+### What you'll see in technical mode
+
+After each user message (and the final contact message), a card slides in showing:
+- **Detected mood** (e.g. "withdrawn", "low", "distressed", "supportive")
+- **Signal tags** (e.g. "one-word reply", "emotional shutdown", "deflection")
+
+The card auto-dismisses after ~2.5 seconds and the conversation continues. Background mood shifts still work exactly the same.
+
+---
+
 ## Tips for recording
 - Use an iPhone (or emulator at 430x932) for the intended mobile viewport.
 - Go slow — let each background shift breathe for a moment before sending the next message.
