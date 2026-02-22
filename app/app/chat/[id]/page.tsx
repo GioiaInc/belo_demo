@@ -25,7 +25,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
 
   // State
   const [messages, setMessages] = useState<Message[]>(chatHistory);
-  const [currentMood, setCurrentMood] = useState(0.6); // start warm from history
+  const [currentMood, setCurrentMood] = useState(0.85); // start warm from history
   const [scriptIndex, setScriptIndex] = useState(0);   // where we are in demoScript
   const [isTyping, setIsTyping] = useState(false);
   const [started, setStarted] = useState(false);       // has the demo started
@@ -43,18 +43,25 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
     }
   }, [messages]);
 
+  // Realistic typing delay — average person types ~40 WPM on a phone
+  // That's roughly 200ms per character + thinking time
+  const getTypingDelay = (text: string) => {
+    const thinkingTime = 600;
+    const perChar = 60;
+    return thinkingTime + text.length * perChar + Math.random() * 400;
+  };
+
   // Start the demo: after a short delay, Saeed sends the first message
   useEffect(() => {
     if (started) return;
     const timer = setTimeout(() => {
       setStarted(true);
-      // Show typing indicator, then Saeed's first message
       setIsTyping(true);
       setTimeout(() => {
         setIsTyping(false);
         setMessages((prev) => [...prev, demoScript[0]]);
         setScriptIndex(1);
-      }, 1800);
+      }, getTypingDelay(demoScript[0].text));
     }, 1500);
     return () => clearTimeout(timer);
   }, [started]);
@@ -75,12 +82,13 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
 
         // If the following message is from the contact, auto-send after typing indicator
         if (nextIdx < demoScript.length && demoScript[nextIdx].sender === "contact") {
+          const reply = demoScript[nextIdx];
           setIsTyping(true);
           setTimeout(() => {
             setIsTyping(false);
-            setMessages((prev) => [...prev, demoScript[nextIdx]]);
+            setMessages((prev) => [...prev, reply]);
             setScriptIndex(nextIdx + 1);
-          }, 1500 + Math.random() * 1000);
+          }, getTypingDelay(reply.text));
         }
       }
     },

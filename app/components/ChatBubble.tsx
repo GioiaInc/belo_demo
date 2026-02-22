@@ -22,9 +22,10 @@ export default function ChatBubble({ message, isLast = false, delay = 0 }: ChatB
     >
       <div className={`max-w-[75%] ${isUser ? "text-right" : "text-left"}`}>
         <p
-          className={`text-[15px] leading-relaxed ${
+          className={`text-[17px] leading-relaxed ${
             isUser ? "text-white/90" : "text-white"
           }`}
+          style={{ fontFamily: "var(--font-chat)", fontWeight: 400 }}
         >
           {message.text}
         </p>

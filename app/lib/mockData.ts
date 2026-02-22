@@ -73,117 +73,162 @@ export const userAvatar = {
 };
 
 // =============================================
-// DEMO CHAT FLOW
+// DEMO CHAT FLOW — wider emotional arc
 // =============================================
 
-// Old messages shown on load (filler context — "yesterday")
+// Yesterday messages — warm, friends vibing
 export const chatHistory: Message[] = [
   {
     id: "h1",
-    text: "Are we still on for Friday?",
-    sender: "user",
+    text: "Last night was so fun haha",
+    sender: "contact",
     timestamp: "Yesterday",
-    mood: 0.6,
+    mood: 0.85,
   },
   {
     id: "h2",
-    text: "Yeah should be good",
-    sender: "contact",
+    text: "Literally the best time",
+    sender: "user",
     timestamp: "Yesterday",
-    mood: 0.6,
+    mood: 0.9,
   },
   {
     id: "h3",
-    text: "Cool, see you then",
-    sender: "user",
+    text: "We gotta do that again soon",
+    sender: "contact",
     timestamp: "Yesterday",
-    mood: 0.65,
+    mood: 0.85,
   },
 ];
 
-// The scripted demo flow:
-// Step 0: chatHistory is shown. Then Saeed sends first message.
-// Step 1: Saeed sends "Hey, are you coming tonight?" (auto, after delay)
-// Step 2: User types & sends "No" → mood dips
-// Step 3: Saeed sends "Is everything alright?" (auto, after typing indicator)
-// Step 4: User types & sends "Idk to be honest." → mood drops further
-// Step 5: Saeed sends supportive message → mood warms back up
+// The scripted demo flow — bright start → emotional dip → warm recovery
+// Step 0: chatHistory shown (mood ~0.85). Then Saeed sends first message.
+// Step 1: Saeed: warm invite (0.75)
+// Step 2: User: "Maybe" — slight pullback (0.5)
+// Step 3: Saeed: still upbeat (0.55)
+// Step 4: User: opens up about feeling off (0.28)
+// Step 5: Saeed: concern (0.2)
+// Step 6: User: tries to shut down (0.12) — darkest point
+// Step 7: Saeed: shows up for him (0.65) — warm recovery
 
 export const demoScript: Message[] = [
   {
     id: "d1",
-    text: "Hey, are you coming tonight?",
+    text: "Heyy we're all going out tonight, you coming?",
     sender: "contact",
     timestamp: "5:52 PM",
-    mood: 0.5,
+    mood: 0.75,
   },
   {
     id: "d2",
-    text: "No",          // user types this
+    text: "Maybe",
     sender: "user",
     timestamp: "5:53 PM",
-    mood: 0.35,
+    mood: 0.5,
   },
   {
     id: "d3",
-    text: "Is everything alright?",
+    text: "Come on it'll be fun",
     sender: "contact",
     timestamp: "5:54 PM",
-    mood: 0.3,
+    mood: 0.55,
   },
   {
     id: "d4",
-    text: "Idk to be honest.",  // user types this
+    text: "I've just been feeling off lately",
     sender: "user",
     timestamp: "5:56 PM",
-    mood: 0.2,
+    mood: 0.28,
   },
   {
     id: "d5",
-    text: "Hey, I'm here for you. Whatever it is, we can talk about it",
+    text: "Wait what's going on? Talk to me",
     sender: "contact",
     timestamp: "5:57 PM",
-    mood: 0.55,
+    mood: 0.2,
+  },
+  {
+    id: "d6",
+    text: "It's nothing, forget it",
+    sender: "user",
+    timestamp: "5:59 PM",
+    mood: 0.12,
+  },
+  {
+    id: "d7",
+    text: "Hey. You're not alone in this. I'm coming over.",
+    sender: "contact",
+    timestamp: "6:00 PM",
+    mood: 0.65,
   },
 ];
 
-// Mood to color palette mapping for chat background
+// =============================================
+// MOOD → COLOR PALETTE
+// =============================================
+// 0.7+ : Warm — orange, amber, rose glow
+// 0.5-0.7 : Neutral warm — mauve, soft peach
+// 0.3-0.5 : Cool — teal, slate blue
+// 0.18-0.3 : Cold — deep navy, steel grey
+// <0.18 : Darkest — near black, dense, oppressive
 export const moodPalettes = {
-  getColors(mood: number): { primary: string; secondary: string; accent: string; cloudOpacity: number } {
-    if (mood < 0.25) {
+  getColors(mood: number): {
+    sky: string;
+    cloudA: string;
+    cloudB: string;
+    cloudC: string;
+    starOpacity: number;
+    fogOpacity: number;
+  } {
+    if (mood < 0.18) {
+      // Darkest — near black, heavy
       return {
-        primary: "#0d0521",
-        secondary: "#1a1035",
-        accent: "#2a1a4a",
-        cloudOpacity: 0.7,
+        sky: "#020205",
+        cloudA: "#0a0810",
+        cloudB: "#080612",
+        cloudC: "#0c0a15",
+        starOpacity: 0.06,
+        fogOpacity: 0.55,
       };
-    } else if (mood < 0.45) {
+    } else if (mood < 0.3) {
+      // Cold — deep steel-blue
       return {
-        primary: "#150a2e",
-        secondary: "#251545",
-        accent: "#3d2566",
-        cloudOpacity: 0.5,
+        sky: "#050812",
+        cloudA: "#0e1828",
+        cloudB: "#121e30",
+        cloudC: "#0a1520",
+        starOpacity: 0.15,
+        fogOpacity: 0.45,
       };
-    } else if (mood < 0.6) {
+    } else if (mood < 0.5) {
+      // Cool — teal-indigo, transitional
       return {
-        primary: "#1a0a2e",
-        secondary: "#2d1b4e",
-        accent: "#5b3a8c",
-        cloudOpacity: 0.3,
+        sky: "#0a0e1a",
+        cloudA: "#1a2840",
+        cloudB: "#182535",
+        cloudC: "#1e3045",
+        starOpacity: 0.3,
+        fogOpacity: 0.35,
       };
-    } else if (mood < 0.8) {
+    } else if (mood < 0.7) {
+      // Neutral warm — mauve, peach hints
       return {
-        primary: "#1f0a2e",
-        secondary: "#3d1b4e",
-        accent: "#8b4a8c",
-        cloudOpacity: 0.35,
+        sky: "#140e1e",
+        cloudA: "#3a2040",
+        cloudB: "#452838",
+        cloudC: "#4a2545",
+        starOpacity: 0.4,
+        fogOpacity: 0.3,
       };
     } else {
+      // Warm — deep rose-purple sky with amber/orange cloud accents
       return {
-        primary: "#250a2e",
-        secondary: "#4e1b4a",
-        accent: "#a855a0",
-        cloudOpacity: 0.4,
+        sky: "#1a0e18",
+        cloudA: "#7a3050",
+        cloudB: "#904838",
+        cloudC: "#6a2848",
+        starOpacity: 0.45,
+        fogOpacity: 0.3,
       };
     }
   },
