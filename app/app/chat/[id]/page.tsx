@@ -304,7 +304,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                   )}
                   <ChatBubble
                     message={msg}
-                    isLast={i === messages.length - 1 && msg.sender === "contact"}
+                    isLast={i === messages.length - 1 && msg.sender === "user"}
                     delay={i < chatHistory.length ? i * 0.08 : 0}
                   />
                 </div>

@@ -1,10 +1,15 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { outerRingContacts, centerGroup, userAvatar } from "@/lib/mockData";
+
+// =============================================
+// SPLASH SCREEN TIMING
+// =============================================
+const SPLASH_DURATION = 2200; // ms — how long the splash stays before fading
 
 // =============================================
 // OUTER RING — angles in degrees, clockwise from top
@@ -73,6 +78,13 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 430, h: 700 });
   const [exiting, setExiting] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Dismiss splash after duration
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), SPLASH_DURATION);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const update = () => {
@@ -90,7 +102,7 @@ export default function Home() {
 
   const handleContactTap = (contactId: string) => {
     setExiting(true);
-    setTimeout(() => router.push(`/chat/${contactId}`), 350);
+    setTimeout(() => router.push(`/chat/${contactId}?insights=true`), 350);
   };
 
   // Ellipse geometry — derived from controls above
@@ -108,12 +120,46 @@ export default function Home() {
   const fabSize = Math.round(dims.w * FAB_SCALE);
 
   return (
-    <motion.div
-      className="relative w-full h-dvh overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #1F1F1F 0%, #4F2C5A 46%, #3C1749 100%)" }}
-      animate={exiting ? { opacity: 0, scale: 0.96, y: -20 } : { opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-    >
+    <div className="relative w-full h-dvh overflow-hidden" style={{ background: "linear-gradient(180deg, #1F1F1F 0%, #4F2C5A 46%, #3C1749 100%)" }}>
+      {/* Splash screen */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center"
+            style={{ background: "linear-gradient(180deg, #1F1F1F 0%, #4F2C5A 46%, #3C1749 100%)" }}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <motion.h1
+              className="text-white/90"
+              style={{ fontFamily: "var(--font-bumbbled)", fontSize: 52 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+            >
+              belo
+            </motion.h1>
+            <motion.p
+              className="text-white/35 text-[14px] tracking-[0.15em]"
+              style={{ marginTop: 8 }}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              by GIOIA
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main home screen — only mounts after splash is done so all entrance animations play fresh */}
+      {!showSplash && (
+      <motion.div
+        className="relative w-full h-full"
+        animate={exiting ? { opacity: 0, scale: 0.96, y: -20 } : { opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+      >
       {/* Status bar spacer */}
       <div style={{ height: HEADER_TOP_PAD }} />
 
@@ -331,5 +377,7 @@ export default function Home() {
         </div>
       </motion.div>
     </motion.div>
+      )}
+    </div>
   );
 }

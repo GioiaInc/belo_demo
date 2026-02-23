@@ -29,7 +29,7 @@ export default function ChatBubble({ message, isLast = false, delay = 0 }: ChatB
         >
           {message.text}
         </p>
-        {isLast && (
+        {isLast && isUser && (
           <motion.p
             className="text-[11px] text-white/30"
             style={{ marginTop: 4 }}
