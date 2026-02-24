@@ -102,7 +102,7 @@ export default function Home() {
 
   const handleContactTap = (contactId: string) => {
     setExiting(true);
-    setTimeout(() => router.push(`/chat/${contactId}?insights=true`), 350);
+    setTimeout(() => router.push(`/chat/${contactId}?insights=true`), 500);
   };
 
   // Ellipse geometry — derived from controls above
@@ -157,8 +157,8 @@ export default function Home() {
       {!showSplash && (
       <motion.div
         className="relative w-full h-full"
-        animate={exiting ? { opacity: 0, scale: 0.96, y: -20 } : { opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+        animate={exiting ? { opacity: 0, scale: 0.92 } : { opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       >
       {/* Status bar spacer */}
       <div style={{ height: HEADER_TOP_PAD }} />

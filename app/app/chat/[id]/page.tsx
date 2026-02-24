@@ -16,6 +16,40 @@ import type { Message, Insight } from "@/lib/mockData";
 // =============================================
 const AVATAR_SIZE = 80;         // px — chat header avatar
 const GLASS_ICON_SIZE = 36;     // px — liquid glass icon bubbles
+
+// =============================================
+// AVATAR LAYER ORDER (z-index, lowest = back)
+// Rearrange these numbers to change stacking.
+// =============================================
+const LAYER_Z_ELLIPSE   = 0;   // Ellipse 72 — purple circle base
+const LAYER_Z_GROUP     = 1;   // Group — outer wave lines
+const LAYER_Z_GROUP_1   = 10;   // Group-1 — wave ring
+const LAYER_Z_GROUP_2   = 3;   // Group-2 — tighter wave ring
+const LAYER_Z_GROUP_3   = 4;   // Group-3 — lower wave arc
+const LAYER_Z_PERSON    = 5;   // saeed_person_alone — Saeed's photo
+const LAYER_Z_GROUP_4   = 6;   // Group-4 — wave lines over person
+const LAYER_Z_GROUP_5   = 7;   // Group-5 — topmost wave arc
+
+// =============================================
+// AVATAR MOOD TINT — wave lines & ellipse shift color with mood
+// Mood 0→1 maps to hue rotation (blue base ~200°)
+// Low mood: dark indigo/steel. High mood: rose/amber.
+// =============================================
+function getAvatarTint(mood: number) {
+  // Hue rotation: 0° = original blue, positive = toward pink/rose
+  const hueRotate = -20 + mood * 160;           // range: -20° (cold) → 140° (warm rose)
+  const saturate = 0.5 + mood * 0.8;            // range: 0.5 (muted) → 1.3 (vivid)
+  const brightness = 0.4 + mood * 0.7;          // range: 0.4 (dim) → 1.1 (bright)
+  return { hueRotate, saturate, brightness };
+}
+
+// Ellipse glow color that matches mood
+function getEllipseGlow(mood: number): string {
+  if (mood < 0.3) return "rgba(30, 40, 80, 0.5)";
+  if (mood < 0.5) return "rgba(60, 50, 100, 0.45)";
+  if (mood < 0.7) return "rgba(100, 50, 120, 0.4)";
+  return "rgba(160, 60, 90, 0.45)";
+}
 // =============================================
 
 export default function ChatPage({ params }: { params: Promise<{ id: string }> }) {
@@ -152,9 +186,9 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   return (
     <motion.div
       className="relative w-full h-dvh overflow-hidden"
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+      initial={{ opacity: 0, y: 80, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
     >
       <AtmosphericBG mood={currentMood} />
 
@@ -207,16 +241,64 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                 </svg>
               </button>
 
-              {/* Avatar */}
-              <div style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}>
-                <Image
-                  src={contact.avatar}
-                  alt={contact.name}
-                  width={AVATAR_SIZE}
-                  height={AVATAR_SIZE}
-                  className="w-full h-full object-contain"
-                  unoptimized
+              {/* Avatar — layered reconstruction from Figma elements, mood-tinted */}
+              <div className="relative" style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}>
+                {/* Mood glow behind everything */}
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{
+                    width: AVATAR_SIZE * 1.1,
+                    height: AVATAR_SIZE * 1.1,
+                    left: -(AVATAR_SIZE * 0.05),
+                    top: -(AVATAR_SIZE * 0.05),
+                    filter: "blur(12px)",
+                    zIndex: -1,
+                  }}
+                  animate={{ backgroundColor: getEllipseGlow(currentMood) }}
+                  transition={{ duration: 2.5, ease: "easeInOut" }}
                 />
+                {/* All layers centered within the same frame, scaled from the 418px Figma canvas */}
+                {[
+                  { src: "/chat_avatar_elements/Ellipse 72.png", w: 418, h: 418, z: LAYER_Z_ELLIPSE, tint: true },
+                  { src: "/chat_avatar_elements/Group.png", w: 340, h: 278, z: LAYER_Z_GROUP, tint: true },
+                  { src: "/chat_avatar_elements/Group-1.png", w: 258, h: 320, z: LAYER_Z_GROUP_1, tint: true },
+                  { src: "/chat_avatar_elements/Group-2.png", w: 228, h: 207, z: LAYER_Z_GROUP_2, tint: true },
+                  { src: "/chat_avatar_elements/Group-3.png", w: 340, h: 153, z: LAYER_Z_GROUP_3, tint: true },
+                  { src: "/chat_avatar_elements/saeed_person_alone.png", w: 304, h: 357, z: LAYER_Z_PERSON, tint: false },
+                  { src: "/chat_avatar_elements/Group-4.png", w: 258, h: 175, z: LAYER_Z_GROUP_4, tint: true },
+                  { src: "/chat_avatar_elements/Group-5.png", w: 228, h: 119, z: LAYER_Z_GROUP_5, tint: true },
+                ].map((layer, i) => {
+                  const scale = AVATAR_SIZE / 418;
+                  const scaledW = layer.w * scale;
+                  const scaledH = layer.h * scale;
+                  const tint = getAvatarTint(currentMood);
+                  return (
+                    <motion.div
+                      key={i}
+                      className="absolute"
+                      style={{
+                        width: scaledW,
+                        height: scaledH,
+                        left: (AVATAR_SIZE - scaledW) / 2,
+                        top: (AVATAR_SIZE - scaledH) / 2,
+                        zIndex: layer.z,
+                      }}
+                      animate={layer.tint ? {
+                        filter: `hue-rotate(${tint.hueRotate}deg) saturate(${tint.saturate}) brightness(${tint.brightness})`,
+                      } : undefined}
+                      transition={{ duration: 2.5, ease: "easeInOut" }}
+                    >
+                      <Image
+                        src={layer.src}
+                        alt=""
+                        width={layer.w}
+                        height={layer.h}
+                        className="w-full h-full"
+                        unoptimized
+                      />
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {/* Video icon — liquid glass bubble */}
