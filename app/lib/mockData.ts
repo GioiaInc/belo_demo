@@ -209,34 +209,34 @@ export const moodPalettes = {
     fogOpacity: number;
   } {
     if (mood < 0.18) {
-      // Darkest — near black, heavy
+      // Darkest — muted deep indigo, still readable
       return {
-        sky: "#020205",
-        cloudA: "#0a0810",
-        cloudB: "#080612",
-        cloudC: "#0c0a15",
-        starOpacity: 0.06,
-        fogOpacity: 0.55,
+        sky: "#0a0a14",
+        cloudA: "#151228",
+        cloudB: "#121020",
+        cloudC: "#18152a",
+        starOpacity: 0.12,
+        fogOpacity: 0.4,
       };
     } else if (mood < 0.3) {
-      // Cold — deep steel-blue
+      // Cold — slate-blue, subdued
       return {
-        sky: "#050812",
-        cloudA: "#0e1828",
-        cloudB: "#121e30",
-        cloudC: "#0a1520",
-        starOpacity: 0.15,
-        fogOpacity: 0.45,
+        sky: "#0c0e18",
+        cloudA: "#161e30",
+        cloudB: "#1a2235",
+        cloudC: "#141c28",
+        starOpacity: 0.2,
+        fogOpacity: 0.38,
       };
     } else if (mood < 0.5) {
       // Cool — teal-indigo, transitional
       return {
-        sky: "#0a0e1a",
-        cloudA: "#1a2840",
-        cloudB: "#182535",
-        cloudC: "#1e3045",
+        sky: "#0e1018",
+        cloudA: "#1e2838",
+        cloudB: "#1c2530",
+        cloudC: "#222e3a",
         starOpacity: 0.3,
-        fogOpacity: 0.35,
+        fogOpacity: 0.33,
       };
     } else if (mood < 0.7) {
       // Neutral warm — mauve, peach hints
@@ -252,10 +252,10 @@ export const moodPalettes = {
       // Warm — deep rose-purple sky with amber/orange cloud accents
       return {
         sky: "#1a0e18",
-        cloudA: "#7a3050",
-        cloudB: "#904838",
-        cloudC: "#6a2848",
-        starOpacity: 0.45,
+        cloudA: "#6a2d48",
+        cloudB: "#7a4035",
+        cloudC: "#5e2540",
+        starOpacity: 0.42,
         fogOpacity: 0.3,
       };
     }
